@@ -25,8 +25,7 @@ export function ResumeChat({ analysis }: ResumeChatProps) {
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
-      const { scrollHeight, clientHeight } = chatContainerRef.current;
-      chatContainerRef.current.scrollTop = scrollHeight - clientHeight;
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
   };
 
@@ -78,18 +77,21 @@ export function ResumeChat({ analysis }: ResumeChatProps) {
 
   return (
     <>
-      {/* Chat Toggle Button */}
+      {/* Chat Button */}
       <motion.button
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        className="fixed bottom-6 right-6 p-4 rounded-full bg-gradient-to-r from-primary-600 to-primary-700 text-white shadow-lg hover:shadow-xl transition-all duration-300"
+        className="fixed bottom-6 right-6 p-4 rounded-full bg-primary-600 text-white shadow-xl hover:shadow-2xl transition-all duration-300"
         onClick={() => {
           setIsOpen(true);
           setIsMinimized(false);
         }}
-        style={{ display: isOpen ? 'none' : 'block' }}
+        style={{ 
+          display: isOpen ? 'none' : 'block',
+          zIndex: 9999
+        }}
       >
         <MessageSquare className="h-6 w-6" />
       </motion.button>
@@ -103,29 +105,38 @@ export function ResumeChat({ analysis }: ResumeChatProps) {
               opacity: 1, 
               y: 0,
               scale: 1,
-              height: isMinimized ? '60px' : '600px'
+              height: isMinimized ? '60px' : '85vh'
             }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
             transition={{ duration: 0.2, ease: 'easeOut' }}
-            className="fixed bottom-6 right-6 w-96 bg-white rounded-xl shadow-2xl overflow-hidden border border-neutral-200"
+            className="fixed right-6 w-96 bg-white rounded-xl shadow-2xl overflow-hidden border border-neutral-200"
+            style={{ 
+              zIndex: 9999,
+              bottom: '24px',
+              maxHeight: 'calc(100vh - 48px)',
+              display: 'flex',
+              flexDirection: 'column'
+            }}
           >
-            {/* Chat Header */}
-            <div className="p-4 bg-gradient-to-r from-primary-600 to-primary-700 text-white flex items-center justify-between">
+            {/* Header */}
+            <div className="sticky top-0 p-4 bg-white flex items-center justify-between flex-shrink-0 z-50 border-b border-neutral-200">
               <div className="flex items-center space-x-2">
-                <Bot className="h-5 w-5" />
-                <h3 className="font-semibold">Resume Assistant</h3>
+                <Bot className="h-5 w-5 text-primary-600" />
+                <h3 className="font-semibold text-neutral-900">
+                  Resume Assistant {isMinimized && "(Minimized)"}
+                </h3>
               </div>
               <div className="flex items-center space-x-2">
                 <button
                   onClick={() => setIsMinimized(!isMinimized)}
-                  className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                  className="p-1.5 rounded-lg transition-colors hover:bg-neutral-100 text-neutral-600 hover:text-neutral-900"
                   title={isMinimized ? "Expand" : "Minimize"}
                 >
                   <MinusCircle className="h-4 w-4" />
                 </button>
                 <button
                   onClick={() => setIsOpen(false)}
-                  className="p-1.5 hover:bg-white/20 rounded-lg transition-colors"
+                  className="p-1.5 rounded-lg transition-colors hover:bg-red-50 text-neutral-600 hover:text-red-600"
                   title="Close"
                 >
                   <X className="h-4 w-4" />
@@ -140,16 +151,21 @@ export function ResumeChat({ analysis }: ResumeChatProps) {
                   animate={{ opacity: 1, height: 'auto' }}
                   exit={{ opacity: 0, height: 0 }}
                   transition={{ duration: 0.2 }}
+                  className="flex-1 flex flex-col min-h-0"
                 >
-                  {/* Messages Container */}
+                  {/* Chat Messages Container */}
                   <div 
                     ref={chatContainerRef}
-                    className="h-[440px] overflow-y-auto px-4 py-6 space-y-4 bg-neutral-50"
+                    className="flex-1 overflow-y-auto px-4 py-6 space-y-4 bg-neutral-50"
+                    style={{
+                      scrollbarWidth: 'thin',
+                      scrollbarColor: '#CBD5E1 #F1F5F9'
+                    }}
                   >
                     {messages.length === 0 && (
                       <div className="text-center text-neutral-600 mt-4 bg-white p-6 rounded-xl shadow-sm border border-neutral-100">
                         <Bot className="h-8 w-8 mx-auto mb-3 text-primary-600" />
-                        <p className="font-medium mb-4">
+                        <p className="font-medium mb-4 text-neutral-800">
                           Hi! I'm your Resume Assistant. Ask me anything about your resume analysis!
                         </p>
                         <div className="space-y-2 text-sm">
@@ -166,7 +182,7 @@ export function ResumeChat({ analysis }: ResumeChatProps) {
                                 setInput(suggestion);
                                 inputRef.current?.focus();
                               }}
-                              className="block w-full p-2 text-left hover:bg-neutral-100 rounded-lg transition-colors duration-200"
+                              className="block w-full p-2 text-left hover:bg-neutral-100 rounded-lg transition-colors duration-200 text-neutral-700"
                             >
                               {suggestion}
                             </button>
@@ -188,7 +204,7 @@ export function ResumeChat({ analysis }: ResumeChatProps) {
                         <div
                           className={`max-w-[85%] p-3 rounded-2xl shadow-sm ${
                             message.role === 'user'
-                              ? 'bg-gradient-to-r from-primary-600 to-primary-700 text-white ml-4'
+                              ? 'bg-primary-100 text-neutral-800 ml-4'
                               : 'bg-white border border-neutral-200 text-neutral-800 mr-4'
                           }`}
                         >
@@ -216,7 +232,7 @@ export function ResumeChat({ analysis }: ResumeChatProps) {
                   {/* Input Form */}
                   <form 
                     onSubmit={handleSubmit} 
-                    className="p-4 bg-white border-t border-neutral-200"
+                    className="sticky bottom-0 p-4 bg-white border-t border-neutral-200 flex-shrink-0"
                   >
                     <div className="flex items-end space-x-2">
                       <div className="flex-1 relative">
@@ -226,7 +242,7 @@ export function ResumeChat({ analysis }: ResumeChatProps) {
                           onChange={autoResizeTextArea}
                           onKeyDown={handleKeyDown}
                           placeholder="Type your message..."
-                          className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none"
+                          className="w-full px-4 py-3 text-sm bg-neutral-50 border border-neutral-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent resize-none text-neutral-800"
                           style={{
                             minHeight: '44px',
                             maxHeight: '120px'
@@ -236,7 +252,7 @@ export function ResumeChat({ analysis }: ResumeChatProps) {
                       <button
                         type="submit"
                         disabled={isLoading || !input.trim()}
-                        className="p-3 bg-gradient-to-r from-primary-600 to-primary-700 text-white rounded-xl hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex-shrink-0"
+                        className="p-3 bg-primary-600 text-white rounded-xl hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 flex-shrink-0"
                       >
                         <Send className="h-5 w-5" />
                       </button>

@@ -311,13 +311,13 @@ export async function generateChatResponse(
 
   const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API_KEY);
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-pro-latest',
+    model: 'gemini-2.0-flash',
     safetySettings: SAFETY_SETTINGS,
     generationConfig: {
-      temperature: 0.7,
-      topP: 0.8,
-      topK: 40,
-      maxOutputTokens: 8000
+      temperature: 0.45	,
+      topP: 0.84,
+      topK: 72,
+      maxOutputTokens: 12000
     }
   });
 
